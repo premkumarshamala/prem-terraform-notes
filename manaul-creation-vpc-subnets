@@ -1,0 +1,40 @@
+########################################  main.tf
+resource "aws_vpc" "myawsvpc"{
+        cidr_block = var.aws_cidr
+        tags = { Name = var.aws_name}
+
+}
+resource "aws_subnet" "sub1" {
+         vpc_id = aws_vpc.myawsvpc.id
+         cidr_block = var.aws_cidr
+         availability_zone = var.aws_sub1az
+         tags = { Name = var.aws_sub1name}
+}
+
+###################################  varaibile.tf
+
+
+variable "aws_cidr" {
+    type = string
+    default = "198.168.0.0/16"  
+}
+variable "aws_name" {
+    type =string
+    default = "myfirstvpc"
+}
+#subnetes
+variable "vpc_sub1_cidr" {
+     type = string
+     default = "198.168.0.0.0/24" 
+}
+variable "aws_sub1az" {
+    type = string
+    default = "ap-south-1a"
+}
+variable "aws_sub1name" {
+    type = string
+    default = "sub1"
+}
+
+
+
