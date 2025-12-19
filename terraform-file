@@ -1,0 +1,40 @@
+resource "aws_vpc" "demovpc" {
+    cidr_block = var.vpc_cidrblock
+    tags = { Name = var.vpc_name}
+  
+}
+
+#subnet
+
+resource "aws_subnet" "vpc_subnet" {
+    count = length(var.subnet_info)
+    vpc_id = aws_vpc.demovpc.id
+    cidr_block = var.subnet_info[count.index].cidr
+    availability_zone = var.subnet_info[count.index].az
+  tags = { Names = var.subnet_info[count.index].Name }
+}
+########################################################### variable.file
+
+
+variable "vpc_cidrblock" {
+  type = string
+  default = "192.168.0.0/16"
+}
+variable "vpc_name" {
+  type = string
+  default = "mydemovpc"
+}
+
+#subnet
+
+variable "subnet_info" {
+  type = list(object({
+     cidr = string
+     az = string
+     Name = string  
+  }))
+  default = [ 
+    {cidr = "192.168.1.0/24", az = "ap-south-1a", Name = "sub1"} ,
+    {cidr = "192.168.2.0/24", az = "ap-south-1b", Name = "sub2"}
+   ]
+}
