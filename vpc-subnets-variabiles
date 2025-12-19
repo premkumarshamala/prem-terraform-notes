@@ -1,3 +1,5 @@
+main.tf file
+
 resource "aws_vpc" "demovpc" {
     cidr_block = var.vpc_cidrblock
     tags = { Name = var.vpc_name}
@@ -38,3 +40,65 @@ variable "subnet_info" {
     {cidr = "192.168.2.0/24", az = "ap-south-1b", Name = "sub2"}
    ]
 }
+
+
+#########################################################################################################################################
+USING MAP FUNCTION TO CREATE SAME VPC WITH SUBNETS
+#############################################################################################################################################  main.tf
+
+
+#VPC 
+variable "vpc_cidr" {
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
+variable "vpc_name" {
+  type        = string
+  default     = "demo-vpc"
+}
+
+#SUBNET
+
+variable "subnet_details" {
+  type = map(object({cidr = string, az   = string} ))
+
+  default = {
+    "sub1" = { cidr = "192.168.1.0/24", az   = "ap-south-1a" }
+    "sub2" = {cidr = "192.168.2.0/24", az   = "ap-south-1b"  }
+    "sub3" = {cidr = "192.168.3.0/24" , az   = "ap-south-1c"
+    }
+  }
+}
+
+
+
+##################################################################################################  variable.tf
+#VPC 
+variable "vpc_cidr" {
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
+variable "vpc_name" {
+  type        = string
+  default     = "demo-vpc"
+}
+
+#SUBNET
+
+variable "subnet_details" {
+  type = map(object({cidr = string, az   = string} ))
+
+  default = {
+    "sub1" = { cidr = "192.168.1.0/24", az   = "ap-south-1a" }
+    "sub2" = {cidr = "192.168.2.0/24", az   = "ap-south-1b"  }
+    "sub3" = {cidr = "192.168.3.0/24" , az   = "ap-south-1c"
+    }
+  }
+}
+
+
+
+
+
