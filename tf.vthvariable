@@ -1,0 +1,48 @@
+main.tf 
+------------------------------------------
+
+resource "aws_vpc" "demovpc" {
+  cidr_block = var.aws_vpc_cidr
+  tags = { Name = var.aws_vpc_name}
+  
+}
+resource "aws_subnet" "sub1" {
+  count = length(var.subnet_info)
+  vpc_id = aws_vpc.demovpc.id
+  cidr_block = var.subnet_info[count.index].cidr
+  availability_zone = var.subnet_info[count.index].az
+  tags = { Name = var.subnet_info[count.index].Name}
+  
+}
+
+variable.tf
+---------------------------------------------------------------------------
+
+variable "aws_vpc_cidr" {
+  type = string
+  default = "198.168.0.0/16"
+  
+}
+
+variable "aws_vpc_name" {
+  type = string
+  default = "demovpc"
+  
+}
+
+#subnets
+variable "subnet_info"{
+     type = list(object({
+       cidr = string
+       az = string
+       Name = string
+     }))
+
+default = [ 
+  {cidr= "198.168.1.0/24" , az = "ap-south-1a", Name = "sub1"}, 
+  {cidr= "198.168.2.0/24", az = "ap-south-1b" , Name = "sub2"}
+ ]
+
+}
+
+-----------------------------------------
