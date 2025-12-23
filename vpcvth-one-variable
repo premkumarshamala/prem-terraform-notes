@@ -1,0 +1,47 @@
+Main.tf
+=-=========================================
+
+resource "aws_vpc" "mydemovpc" {
+    cidr_block = var.networkinfo.vpccidr
+    tags = {
+      Name = var.networkinfo.vpcname
+    }
+}
+
+resource "aws_subnet" "subnets" {
+    count = length(var.networkinfo.subnetinfo[0].subnetcidr)
+    vpc_id = aws_vpc.mydemovpc.id
+    cidr_block = var.networkinfo.subnetinfo[0].subnetcidr[count.index]
+    availability_zone = var.networkinfo.subnetinfo[0].subnetaz[count.index]
+       tags = {
+                Name = var.networkinfo.subnetinfo[0].subnetnames[count.index]
+ }
+  
+}
+
+====================================================================================
+variable.tf
+======================================================
+variable "networkinfo" {
+  type = object({
+    vpccidr = string
+    vpcname = string
+    subnetinfo = list(object({
+       subnetcidr = list(string)
+       subnetaz = list(string)
+       subnetnames = list(string) 
+    }))
+  })
+default = {
+      vpcname = "mydemovpc"
+       vpccidr = "10.0.0.0/16"
+       subnetinfo = [ {
+        subnetcidr = ["10.0.0.0/24", "10.1.0.0/24"]
+        subnetaz = ["ap-south-1a", "ap-south-1b"]
+        subnetnames = ["sub1" , "sub2"] 
+    } ]
+    
+  }
+  
+}
+
