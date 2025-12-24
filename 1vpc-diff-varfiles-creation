@@ -1,0 +1,95 @@
+MAIN.TF
+---------------------------------------------------------------------
+
+resource "aws_vpc" "demovpc" {
+  cidr_block = var.networkinfo.vpccidr
+  tags = {
+    Name = var.networkinfo.vpcname # Fixed 'Names' to 'Name' for standard AWS tagging
+  }
+}
+
+resource "aws_subnet" "pubsubinfo" {
+  count             = local.pub_subnet_value
+  vpc_id            = aws_vpc.demovpc.id
+  cidr_block        = var.networkinfo.subnetinfo[0].subcidr[count.index]
+  availability_zone = var.networkinfo.subnetinfo[0].subaz[count.index]
+  
+  tags = {
+    Name = var.networkinfo.subnetinfo[0].subname[count.index]
+  }
+}
+
+resource "aws_internet_gateway" "demo-IGW" {
+  vpc_id = aws_vpc.demovpc.id
+  tags = {
+    Name = "IGW"
+  }
+}
+
+resource "aws_route_table" "demo-vpc-rout-table" {
+  vpc_id = aws_vpc.demovpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.demo-IGW.id
+  }
+
+  tags = {
+    Name = "aws-vpc-route"
+  }
+}
+
+resource "aws_route_table_association" "rote-subnet-assosiates" {
+  count          = local.pub_subnet_value
+  route_table_id = aws_route_table.demo-vpc-rout-table.id
+  
+  # FIXED: Accessing specific index instead of the whole list
+  subnet_id      = aws_subnet.pubsubinfo[count.index].id
+}
+
+===========================================================
+  variables.tf
+==============================================================
+
+    variable "networkinfo" {
+  type = object({
+    vpcname = string
+    vpccidr = string
+    subnetinfo = list(object({
+      subcidr = list(string)
+      subaz   = list(string)
+      subname = list(string)
+    }))
+  })
+}
+=================================================================
+    locals.tf
+ ===============================================================================
+
+    locals {
+  pub_subnet_value = length(var.networkinfo.subnetinfo[0].subaz)
+}
+
+=============================================
+    dev.tfvars
+========================================================
+
+    
+
+
+networkinfo = { 
+  vpcname = "mydemovpc-dev"
+  vpccidr = "10.0.0.0/16" # Matches the 10.0.x.x subnets
+  subnetinfo = [ {
+    subcidr = ["10.0.0.0/24", "10.0.1.0/24"]
+    subaz   = ["ap-south-1a", "ap-south-1b"]
+    subname = ["sub1-dev", "sub2-dev"]
+  } ]
+}
+
+    
+    
+
+    
+    
+    
